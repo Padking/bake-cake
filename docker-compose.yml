@@ -1,0 +1,17 @@
+version: "3.0"
+services:
+    db: 
+        build: 
+            context: ./Docker
+            dockerfile: postgres.Dockerfile
+        env_file: 
+            - .env.local
+        expose: 
+            - "5432"
+        ports: 
+            - "5432:5432"
+        restart: on-failure
+        volumes: 
+            - dbdata:/var/lib/postgresql/data
+volumes: 
+    dbdata: 
