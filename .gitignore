@@ -105,6 +105,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# Linters
+.flake8
+
 # pyenv
 .python-version
 
