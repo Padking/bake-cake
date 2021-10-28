@@ -1,9 +1,6 @@
-import asyncio
 from orm_converter.tortoise_to_django import ConvertedModel
 from tortoise import Tortoise, fields
 from tortoise.models import Model
-
-from config import DatabaseConfig
 
 
 class User(Model, ConvertedModel):
@@ -68,10 +65,6 @@ class Layer(Model, ConvertedModel):
 
 
 class Cake(Model, ConvertedModel):
-    basis = fields.CharField(max_length=64, description="Основа")
-    shape = fields.CharField(max_length=64, description="Форма")
-    layers_count = fields.IntField(description="Кол-во слоёв")
-
     name = fields.CharField(max_length=64,
                             description="Название разновидности",
                             null=True)
