@@ -1,11 +1,16 @@
-from aiogram.types import ReplyKeyboardMarkup
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    ReplyKeyboardMarkup,
+)
 
 from ..constants import (
     user_status_to_button_labels_for_menu_keyboard,
+    project_scenario_to_labels_callback_data,
 )
 
 
-def get_keyboard(user_status,
+def get_keyboard(user_status: str,
                  b_labels=user_status_to_button_labels_for_menu_keyboard,
                  buttons=None) -> ReplyKeyboardMarkup:
 
@@ -18,15 +23,17 @@ def get_keyboard(user_status,
     return keyboard
 
 
-# def get_inline_keyboard(buttons_labels=buttons_labels_for_assements_keyboard,
-#                         buttons=None):
+def get_inline_keyboard(scenario_name: str,
+                        b_labels=project_scenario_to_labels_callback_data,
+                        buttons=None):
 
-#     buttons = buttons or []
-#     keyboard = types.InlineKeyboardMarkup()
+    buttons = buttons or []
+    labels = b_labels[scenario_name]
 
-#     buttons = [types.InlineKeyboardButton(text=btn_label, callback_data=btn_c_data)
-#                for btn_label, btn_c_data in buttons_labels.items()]
+    keyboard = InlineKeyboardMarkup(row_width=2)
+    buttons = [InlineKeyboardButton(text=btn_label, callback_data=btn_c_data)
+               for btn_label, btn_c_data in labels.items()]
 
-#     keyboard.add(*buttons)
+    keyboard.add(*buttons)
 
-#     return keyboard
+    return keyboard

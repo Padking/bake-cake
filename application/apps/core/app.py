@@ -18,9 +18,11 @@ def register(dp: Optional[Dispatcher] = None) -> None:
     if dp is not None:
         from .bot.handlers.common import register_handlers_common
         from .bot.handlers.proba_handler import register_handlers_proba
+        from .bot.handlers.registration import register_handlers_registration
 
         register_handlers_common(dp)
         register_handlers_proba(dp)
+        register_handlers_registration(dp)
 
 
 class Core(AppConfig):

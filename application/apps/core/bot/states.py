@@ -1,3 +1,7 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-# Create your states here
+
+class RegisterUser(StatesGroup):
+    pd_approval = State()
+    phone_number = State()
+    address = State()
