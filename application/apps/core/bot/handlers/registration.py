@@ -1,3 +1,4 @@
+import phonenumbers
 from os import getenv
 from pathlib import Path
 
@@ -39,6 +40,10 @@ async def send_help_message(message: types.Message, state: FSMContext):
 
 
 async def get_user_consent(callback_query: types.CallbackQuery):
+    if callback_query.data == 'Не согласен':
+        await callback_query.answer('Для дальнейшей работы бота нужно ваше '
+                                    'согласие')
+        return
     await callback_query.message.edit_caption(
         caption='Согласен на обработку персональных данных',
         reply_markup=None
@@ -52,14 +57,20 @@ async def get_user_consent(callback_query: types.CallbackQuery):
 
 
 async def get_phone_number(message: types.Message, state: FSMContext):
-    # Если телефон валидный, обновить запись в PSQL
     async with state.proxy() as user:
         try:
             user['phone_number'] = message.contact.phone_number
         except AttributeError:
-            # Здесь должна быть валидация
-            user['phone_number'] = message.text
-            # Если телефон невалидный, отправить картинку
+            pure_phonenumber = phonenumbers.parse(message.text, 'RU')
+            if phonenumbers.is_valid_number(pure_phonenumber):
+                normalize_phonenumber = phonenumbers.format_number(
+                    pure_phonenumber,
+                    phonenumbers.PhoneNumberFormat.E164
+                )
+                user['phone_number'] = normalize_phonenumber
+            else:
+                await message.answer('Введите корректный номер телефона')
+                return
 
     await message.answer(state_code_to_text_message["4"],
                          disable_notification=True,
@@ -69,20 +80,23 @@ async def get_phone_number(message: types.Message, state: FSMContext):
 
 
 async def get_address(message: types.Message, state: FSMContext):
-    # Если адрес доставки валидный, сохранить инфу в Redis
     async with state.proxy() as user:
-        # Здесь должна быть валидация
-        user['data'] = message.text
-        # Если адрес доставки невалидный, отправить картинку
+        try:
+            _, _, _ = message.text.split(',')
+            user['address'] = message.text
+        except ValueError:
+            await message.answer(state_code_to_text_message["4"],
+                                 disable_notification=True,
+                                 reply_markup=None)
+            return
 
-    # Обновить статус П-ля в PSQL
-    # data = {}
-    # user, _ = await (models.User.
-    #                  update_from_dict(data=data)
-    # menu = get_keyboard(user.status)
+    await models.User.filter(tg_user_id=message.from_user.id).update(
+        contact_phone=user['phone_number'],
+        status="registered"
+    )
+    menu = get_keyboard('registered')
 
-    await message.answer(state_code_to_text_message["5"])
-                        #  reply_markup=menu)
+    await message.answer(state_code_to_text_message["5"], reply_markup=menu)
 
     await state.finish()  # FIXME
 
@@ -91,14 +105,18 @@ def register_handlers_registration(dp: Dispatcher):
     dp.register_message_handler(send_help_message,
                                 Text(equals="Регистрация"),
                                 state="*")
-    dp.register_callback_query_handler(get_user_consent,
-                                       Text(equals=(project_scenario_to_labels_callback_data
-                                            ["Регистрация"]
-                                            .values())),
-                                       state=RegisterUser.pd_approval)
+    dp.register_callback_query_handler(
+        get_user_consent,
+        Text(
+            equals=(
+                project_scenario_to_labels_callback_data["Регистрация"].values()
+            )
+        ),
+        state=RegisterUser.pd_approval
+    )
     dp.register_message_handler(get_phone_number,
-                                Text(equals="+79631234567"),  # FIXME
+                                content_types=types.ContentTypes.TEXT,
                                 state=RegisterUser.phone_number)
     dp.register_message_handler(get_address,
-                                content_types=types.ContentTypes.TEXT,  # FIXME
+                                content_types=types.ContentTypes.TEXT,
                                 state=RegisterUser.address)

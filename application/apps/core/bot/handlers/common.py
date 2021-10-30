@@ -32,11 +32,11 @@ async def start_cmd(message: Message, state: FSMContext):
 
     # Установка состояния/сохранение данных в него
 
-
     if is_created:
-        await message.answer("You have successfully registered in the bot!")
+        await message.answer("Для начала вам нужно зарегистрироваться.\n"
+                             "Нажмите на кнопку внизу экрана.")
     else:
-        await message.answer("You are already registered in the bot!")
+        await message.answer("Вы уже зарегистрированы! Можете заказать торт")
 
 
 async def fill_db_cmd(message: Message):

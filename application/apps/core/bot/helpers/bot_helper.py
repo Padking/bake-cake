@@ -17,7 +17,8 @@ def get_keyboard(user_status: str,
     buttons = buttons or []
     labels = b_labels[user_status]
 
-    keyboard = ReplyKeyboardMarkup(one_time_keyboard=True, row_width=2)
+    keyboard = ReplyKeyboardMarkup(one_time_keyboard=True, row_width=2,
+                                   resize_keyboard=True, )
     keyboard.add(*labels)
 
     return keyboard

@@ -30,11 +30,10 @@ asyncio.set_event_loop(loop)
 
 
 class MyBot:
-    storage = MemoryStorage()
-    # storage = RedisStorage2(host=os.getenv("REDIS_HOST"),
-    #                         port=os.getenv("REDIS_PORT"),
-    #                         password=os.getenv("REDIS_DB_PASSWORD"))
-
+    # storage = MemoryStorage()
+    storage = RedisStorage2(host=os.getenv("REDIS_HOST"),
+                            port=os.getenv("REDIS_PORT"),
+                            password=os.getenv("REDIS_DB_PASSWORD"))
 
     bot = Bot(token=getenv("BOT_API_TOKEN"), parse_mode="HTML")
     dp = Dispatcher(bot=bot, storage=storage)
