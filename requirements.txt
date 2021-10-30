@@ -8,3 +8,4 @@ tortoise-orm~=0.17.3
 psycopg2-binary~=2.8.6
 asyncpg~=0.23.0
 orm-converter>=0.2.0b0
+phonenumbers==8.12.36
