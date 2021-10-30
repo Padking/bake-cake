@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 from ..constants import (
     state_code_to_text_message,
-    project_scenario_to_labels_callback_data,
+    scenario_step_to_labels_callback_data,
 )
 from ..helpers.bot_helper import (
     get_inline_keyboard,
@@ -29,6 +29,7 @@ load_dotenv(BASE_DIR / "config" / ".env")
 
 
 async def send_help_message(message: types.Message, state: FSMContext):
+    # print('test')
     markup = get_inline_keyboard(message.text)
     f_obj = open(getenv("CONSENT_PD_FILEPATH"), "rb")
     await message.answer_document(f_obj,
@@ -109,7 +110,7 @@ def register_handlers_registration(dp: Dispatcher):
         get_user_consent,
         Text(
             equals=(
-                project_scenario_to_labels_callback_data["Регистрация"].values()
+                scenario_step_to_labels_callback_data["Регистрация"].values()
             )
         ),
         state=RegisterUser.pd_approval

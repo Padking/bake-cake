@@ -6,7 +6,7 @@ from aiogram.types import (
 
 from ..constants import (
     user_status_to_button_labels_for_menu_keyboard,
-    project_scenario_to_labels_callback_data,
+    scenario_step_to_labels_callback_data,
 )
 
 
@@ -24,14 +24,15 @@ def get_keyboard(user_status: str,
     return keyboard
 
 
-def get_inline_keyboard(scenario_name: str,
-                        b_labels=project_scenario_to_labels_callback_data,
-                        buttons=None):
+def get_inline_keyboard(condition: str,
+                        b_labels=scenario_step_to_labels_callback_data,
+                        buttons=None,
+                        row_width=2):
 
     buttons = buttons or []
-    labels = b_labels[scenario_name]
+    labels = b_labels[condition]
 
-    keyboard = InlineKeyboardMarkup(row_width=2)
+    keyboard = InlineKeyboardMarkup(row_width=row_width)
     buttons = [InlineKeyboardButton(text=btn_label, callback_data=btn_c_data)
                for btn_label, btn_c_data in labels.items()]
 
