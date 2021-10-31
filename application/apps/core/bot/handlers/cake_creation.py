@@ -15,12 +15,17 @@ from ..constants import (
 )
 from ..helpers.bot_helper import (
     get_inline_keyboard,
+    get_keyboard,
     update_button_properties,
 )
 from ... import (
     models,
 )
-from ..states import CreateCake
+from ..states import (
+    CreateCake,
+    OrderCake,
+    RegisterUser,
+)
 
 
 async def start_cake_collecting(message: types.Message, state: FSMContext):
@@ -198,13 +203,21 @@ async def get_comment_from_button(callback_query: types.CallbackQuery,
         await callback_query.message.delete()
         if choice == "Без комментария":
 
-            await CreateCake.address.set()
+            delivery_address = cake.get("address", None)
+            if delivery_address:
+                await CreateCake.date.set()  # Если П не планирует менять адрес доставки
 
-            scenario_step = "Оставить адрес доставки"
-            comment_markup = get_inline_keyboard(scenario_step, row_width=2)
-            await callback_query.message.answer('TEST',  # FIXME
-                                                disable_notification=True,
-                                                reply_markup=comment_markup)
+                # scenario_step = "Оставить адрес доставки"
+                # comment_markup = get_inline_keyboard(scenario_step, row_width=2)
+                # await callback_query.message.answer('TEST',  # FIXME
+                #                                     disable_notification=True,
+                #                                     reply_markup=comment_markup)
+
+                await callback_query.message.answer("Введите дату заказа")
+
+            else:  # П со статусом "anonymous"
+                pass  # Адрес б. вводится в сценарии "Регистрация"
+
         else:  # Пользователь желает добавить надпись
             await CreateCake.post_comment.set()
             await callback_query.message.answer(state_code_to_text_message["15"],
@@ -220,11 +233,51 @@ async def get_comment_from_stdout(message: types.Message, state: FSMContext):
 
     await CreateCake.next()
 
-    scenario_step = "Оставить адрес доставки"
-    comment_markup = get_inline_keyboard(scenario_step, row_width=2)
-    await message.answer('TEST',  # FIXME
-                         disable_notification=True,
-                         reply_markup=comment_markup)
+    delivery_address = cake.get("address", None)
+    if delivery_address:
+        await CreateCake.date.set()  # Если П не планирует менять адрес доставки
+
+        await message.answer("Введите дату заказа")
+
+    else:  # П со статусом "anonymous"
+        pass  # Адрес б. вводится в сценарии "Регистрация"
+
+
+async def get_date(message: types.Message, state: FSMContext):
+    date = message.text
+    async with state.proxy() as cake:
+        cake['date'] = date
+
+    await message.reply("Записал!")
+
+    await CreateCake.next()
+
+    await message.answer('Введите время доставки')
+
+
+async def get_time(message: types.Message, state: FSMContext):
+    time = message.text
+    async with state.proxy() as cake:
+        cake['time'] = time
+
+    await message.reply("Записал!")
+
+    user = await models.User.get(tg_user_id=message.from_user.id)
+    user_status = user.status
+
+    markup = get_keyboard(user_status)
+    if user_status == "anonymous":
+
+        await RegisterUser.start_registration.set()
+
+        await message.answer(state_code_to_text_message["17"],
+                             reply_markup=markup)
+    else:
+
+        await OrderCake.amount.set()
+
+        await message.answer(state_code_to_text_message["18"],
+                             reply_markup=markup)
 
 
 def register_handlers_cake_creation(dp: Dispatcher):
@@ -249,3 +302,11 @@ def register_handlers_cake_creation(dp: Dispatcher):
                                        state=CreateCake.comment)
     dp.register_message_handler(get_comment_from_stdout,
                                 state=CreateCake.post_comment)
+    dp.register_message_handler(get_date,
+                                content_types=types.ContentTypes.TEXT,
+                                state=CreateCake.date)
+    dp.register_message_handler(get_time,
+                                content_types=types.ContentTypes.TEXT,
+                                state=[
+                                    CreateCake.time,
+                                ])

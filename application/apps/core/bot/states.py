@@ -21,3 +21,7 @@ class CreateCake(StatesGroup):
     address = State()
     date = State()
     time = State()
+
+
+class OrderCake(StatesGroup):
+    amount = State()
