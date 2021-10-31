@@ -3,13 +3,15 @@ import aiogram.utils.markdown as fmt
 
 permanent_button_labels = [
     "Собрать торт",
-    "Заказать торт",
+    "Главное меню",
 ]
 
 user_status_to_button_labels_for_menu_keyboard = {
     "anonymous": ["Регистрация"],
     "registered": permanent_button_labels,
+    # "registered": ["Собрать торт"],
     "shopper": [*permanent_button_labels, "История заказов"],
+    # "shopper": ["Собрать торт", "История заказов"],
 }
 
 scenario_step_to_labels_callback_data = {
@@ -73,7 +75,7 @@ state_code_to_text_message = {
          'принять ваш заказ.',
     "3": 'Для дальнейшей работы с ботом, нужно указать свой номер телефона.\n'
          'Введите его в строку ввода, например:\n'
-         '+7-963-123-45-67',
+         '89631234567',
     "4": 'Введите адрес доставки в формате: \n'
          'название улицы,номер дома,номер квартиры, например:\n'
          'Садовая, 7, 23',
