@@ -11,6 +11,7 @@ from ..helpers.bot_helper import (
 from ..states import RegisterUser, CreateCake
 
 from ..constants import (
+    scenario_code_to_scenario_name,
     state_code_to_text_message,
 )
 
@@ -67,7 +68,7 @@ async def cmd_cancel(message: Message, state: FSMContext):
     user = await (models.User.get(tg_user_id=message.from_user.id))
     menu = get_keyboard(user.status)
 
-    await message.answer('Вы перемещены в главное меню.\n',
+    await message.answer(state_code_to_text_message["1.2"],
                          reply_markup=menu)
 
 
@@ -89,7 +90,7 @@ def register_handlers_common(dp: Dispatcher):
                                 commands=["reset"],
                                 state="*")
     dp.register_message_handler(cmd_cancel,
-                                Text(equals='Главное меню'),
+                                Text(equals=scenario_code_to_scenario_name["1"]),
                                 state="*")
     dp.register_message_handler(send_help_message,
                                 state=[
