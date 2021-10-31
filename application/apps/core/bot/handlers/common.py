@@ -30,20 +30,17 @@ async def start_cmd(message: Message, state: FSMContext):
     user, is_created = await (models.User.
                               get_or_create(defaults=user_optional_fields,
                                             tg_user_id=message.from_user.id))
-    if user.status == "anonymous":
+
+    user_status = user.status
+    if user_status == "anonymous":
         await RegisterUser.start_registration.set()
 
-    menu = get_keyboard(user.status)
+    menu = get_keyboard(user_status)
     await message.answer(state_code_to_text_message["1"],
                          reply_markup=menu)
 
-    # Установка состояния/сохранение данных в него
-
-    if is_created:
-        await message.answer("Для начала вам нужно зарегистрироваться.\n"
-                             "Нажмите на кнопку внизу экрана.")
-    else:
-        await message.answer("Вы уже зарегистрированы! Можете заказать торт")
+    if is_created or user_status == "anonymous":
+        await message.answer(state_code_to_text_message["1.1"])
 
 
 async def fill_db_cmd(message: Message):
@@ -85,7 +82,6 @@ def register_handlers_common(dp: Dispatcher):
     dp.register_message_handler(start_cmd,
                                 commands=["start"],
                                 state="*")
-
     dp.register_message_handler(fill_db_cmd,
                                 commands=["fill_db"],
                                 state="*")
