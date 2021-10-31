@@ -190,7 +190,7 @@ async def get_title_from_button(callback_query: types.CallbackQuery,
                                                reply_markup=None)
         if choice == "Без надписи":
 
-            await CreateCake.next()
+            await CreateCake.comment.set()
 
             scenario_step = "Оставить комментарий"
             comment_markup = get_inline_keyboard(scenario_step, row_width=1)
@@ -208,13 +208,54 @@ async def get_title_from_stdout(message: types.Message, state: FSMContext):
     async with state.proxy() as cake:
         cake['title'] = title
 
-    await message.reply("Хорошо, сделаем такую надпись")
+    await message.reply(state_code_to_text_message["14"])
 
     await CreateCake.next()
 
     scenario_step = "Оставить комментарий"
     comment_markup = get_inline_keyboard(scenario_step, row_width=1)
     await message.answer(state_code_to_text_message["13"],
+                         disable_notification=True,
+                         reply_markup=comment_markup)
+
+
+async def get_comment_from_button(callback_query: types.CallbackQuery,
+                                  state: FSMContext):
+
+    choice = callback_query.data
+
+    async with state.proxy() as cake:
+        cake['comment'] = choice
+
+        await callback_query.message.edit_text(text="!",  # FIXME
+                                               reply_markup=None)
+        if choice == "Без комментария":
+
+            await CreateCake.address.set()
+
+            scenario_step = "Оставить адрес доставки"
+            comment_markup = get_inline_keyboard(scenario_step, row_width=2)
+            await callback_query.message.answer('TEST',  # FIXME
+                                                disable_notification=True,
+                                                reply_markup=comment_markup)
+        else:  # Пользователь желает добавить надпись
+            await CreateCake.post_comment.set()
+            await callback_query.message.answer(state_code_to_text_message["15"],
+                                                disable_notification=True)
+
+
+async def get_comment_from_stdout(message: types.Message, state: FSMContext):
+    comment_text = message.text
+    async with state.proxy() as cake:
+        cake['comment'] = comment_text
+
+    await message.reply(state_code_to_text_message["16"])
+
+    await CreateCake.next()
+
+    scenario_step = "Оставить адрес доставки"
+    comment_markup = get_inline_keyboard(scenario_step, row_width=2)
+    await message.answer('TEST',  # FIXME
                          disable_notification=True,
                          reply_markup=comment_markup)
 
@@ -237,3 +278,7 @@ def register_handlers_cake_creation(dp: Dispatcher):
                                        state=CreateCake.title)
     dp.register_message_handler(get_title_from_stdout,
                                 state=CreateCake.post_title)
+    dp.register_callback_query_handler(get_comment_from_button,
+                                       state=CreateCake.comment)
+    dp.register_message_handler(get_comment_from_stdout,
+                                state=CreateCake.post_comment)

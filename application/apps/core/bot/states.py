@@ -16,6 +16,7 @@ class CreateCake(StatesGroup):
     title = State()
     post_title = State()  # New
     comment = State()
+    post_comment = State()
     address = State()
     date = State()
     time = State()
