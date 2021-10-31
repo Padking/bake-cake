@@ -20,11 +20,13 @@ def register(dp: Optional[Dispatcher] = None) -> None:
         from .bot.handlers.common import register_handlers_common
         from .bot.handlers.proba_handler import register_handlers_proba
         from .bot.handlers.registration import register_handlers_registration
+        from .bot.handlers.orders_viewing import register_handlers_viewing_orders
 
         register_handlers_cake_creation(dp)
         register_handlers_common(dp)
         register_handlers_proba(dp)
         register_handlers_registration(dp)
+        register_handlers_viewing_orders(dp)
 
 
 class Core(AppConfig):
