@@ -4,7 +4,10 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
 )
 
+from tortoise.queryset import QuerySet
+
 from ..constants import (
+    button_label_template,
     user_status_to_button_labels_for_menu_keyboard,
     scenario_step_to_labels_callback_data,
 )
@@ -39,3 +42,15 @@ def get_inline_keyboard(condition: str,
     keyboard.add(*buttons)
 
     return keyboard
+
+
+def update_button_properties(records: QuerySet,
+                             step: str,
+                             base_structure=scenario_step_to_labels_callback_data,
+                             template=button_label_template) -> None:
+
+    for record in records:
+        record_name = record.name
+        layer_label = template.format(record_name, int(record.price))
+        record_c_data = record_name
+        base_structure[step].update({layer_label: record_c_data})

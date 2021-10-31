@@ -10,14 +10,12 @@ from aiogram.dispatcher.storage import FSMContext
 from dotenv import load_dotenv
 
 from ..constants import (
-    layer_template,
-    scenario_step_to_labels_callback_data,
     scenario_code_to_scenario_name,
     state_code_to_text_message,
 )
 from ..helpers.bot_helper import (
     get_inline_keyboard,
-    get_keyboard,
+    update_button_properties,
 )
 from ... import (
     models,
@@ -28,11 +26,7 @@ from ..states import CreateCake
 async def start_cake_collecting(message: types.Message, state: FSMContext):
     scenario_step = message.text
     layers = await models.Layer.all()
-    for layer in layers:
-        layer_name = layer.name
-        layer_label = layer_template.format(layer_name, int(layer.price))
-        layer_c_data = layer_name
-        scenario_step_to_labels_callback_data[scenario_step].update({layer_label: layer_c_data})
+    update_button_properties(layers, scenario_step)
 
     await CreateCake.levels_number.set()
 
@@ -56,11 +50,7 @@ async def get_levels_number(callback_query: types.CallbackQuery,
 
     scenario_step = "Выбор формы"
     shapes = await models.Shape.all()
-    for shape in shapes:
-        shape_name = shape.name
-        shape_label = layer_template.format(shape_name, int(shape.price))
-        shape_c_data = shape_name
-        scenario_step_to_labels_callback_data[scenario_step].update({shape_label: shape_c_data})
+    update_button_properties(shapes, scenario_step)
 
     shape_markup = get_inline_keyboard(scenario_step, row_width=1)
     await callback_query.message.answer(state_code_to_text_message["7"],
@@ -83,11 +73,7 @@ async def get_shape(callback_query: types.CallbackQuery,
     scenario_step = "Выбор топпинга"
     type_of_topping = await models.ToppingType.get(name="Топпинг")
     toppings = await type_of_topping.toppings.all()
-    for topping in toppings:
-        topping_name = topping.name
-        topping_label = layer_template.format(topping_name, int(topping.price))
-        shape_c_data = topping_name
-        scenario_step_to_labels_callback_data[scenario_step].update({topping_label: shape_c_data})
+    update_button_properties(toppings, scenario_step)
 
     topping_markup = get_inline_keyboard(scenario_step, row_width=1)
     await callback_query.message.answer(state_code_to_text_message["8"],
@@ -110,13 +96,7 @@ async def get_topping(callback_query: types.CallbackQuery,
     scenario_step = "Выбор ягод"
     type_of_topping = await models.ToppingType.get(name="Ягоды")
     toppings = await type_of_topping.toppings.all()
-    for topping in toppings:
-        topping_name = topping.name
-        topping_label = layer_template.format(topping_name, int(topping.price))
-        shape_c_data = topping_name
-        scenario_step_to_labels_callback_data[scenario_step].update({topping_label: shape_c_data})
-    # Кнопка будет внизу, если раскомментировать
-    # scenario_step_to_labels_callback_data[scenario_step].update({"Без ягод": "Без ягод"})
+    update_button_properties(toppings, scenario_step)
 
     topping_markup = get_inline_keyboard(scenario_step, row_width=1)
     await callback_query.message.answer(state_code_to_text_message["9"],
@@ -139,11 +119,7 @@ async def get_berries(callback_query: types.CallbackQuery,
     scenario_step = "Выбор декора"
     type_of_topping = await models.ToppingType.get(name="Декор")
     toppings = await type_of_topping.toppings.all()
-    for topping in toppings:
-        topping_name = topping.name
-        topping_label = layer_template.format(topping_name, int(topping.price))
-        shape_c_data = topping_name
-        scenario_step_to_labels_callback_data[scenario_step].update({topping_label: shape_c_data})
+    update_button_properties(toppings, scenario_step)
 
     topping_markup = get_inline_keyboard(scenario_step, row_width=1)
     await callback_query.message.answer(state_code_to_text_message["10"],
@@ -164,13 +140,6 @@ async def get_decor(callback_query: types.CallbackQuery,
     await CreateCake.next()
 
     scenario_step = "Выбор надписи"
-    # type_of_topping = await models.ToppingType.get(name="Надпись")
-    # toppings = await type_of_topping.toppings.all()
-    # for topping in toppings:
-    #     topping_name = topping.name
-    #     topping_label = layer_template.format(topping_name, int(topping.price))
-    #     shape_c_data = topping_name
-    #     scenario_step_to_labels_callback_data[scenario_step].update({topping_label: shape_c_data})
 
     topping_markup = get_inline_keyboard(scenario_step, row_width=1)
     await callback_query.message.answer(state_code_to_text_message["11"],

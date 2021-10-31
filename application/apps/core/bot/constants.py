@@ -48,7 +48,7 @@ scenario_code_to_scenario_name = {
     "5": "История заказов",
 }
 
-layer_template = "{} (+{} ₽)"
+button_label_template = "{} (+{} ₽)"
 
 # msg_to_add_stuffs_photo = fmt.text(
 #     fmt.text('Добавьте фото вещи, нажав на значок 📎,'),
