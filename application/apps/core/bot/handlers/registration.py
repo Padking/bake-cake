@@ -37,7 +37,7 @@ async def send_help_message(message: types.Message, state: FSMContext):
                                   disable_notification=True,
                                   reply_markup=markup)
     f_obj.close()
-    await RegisterUser.pd_approval.set()
+    await RegisterUser.next()
 
 
 async def get_user_consent(callback_query: types.CallbackQuery):
@@ -62,6 +62,10 @@ async def get_phone_number(message: types.Message, state: FSMContext):
         try:
             user['phone_number'] = message.contact.phone_number
         except AttributeError:
+            phonenumber = message.text.replace('+', '').replace('-', '')
+            if not phonenumber.isdigit() or len(phonenumber) < 11:
+                await message.answer('Введите корректный номер телефона')
+                return
             pure_phonenumber = phonenumbers.parse(message.text, 'RU')
             if phonenumbers.is_valid_number(pure_phonenumber):
                 normalize_phonenumber = phonenumbers.format_number(
@@ -105,7 +109,7 @@ async def get_address(message: types.Message, state: FSMContext):
 def register_handlers_registration(dp: Dispatcher):
     dp.register_message_handler(send_help_message,
                                 Text(equals="Регистрация"),
-                                state="*")
+                                state=RegisterUser.start_registration)
     dp.register_callback_query_handler(
         get_user_consent,
         Text(
