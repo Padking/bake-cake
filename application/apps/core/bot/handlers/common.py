@@ -76,10 +76,8 @@ async def cmd_cancel(message: Message, state: FSMContext):
 
 async def send_help_message(message: Message):
     photo_obj = open(getenv("HELP_PHOTO_FILEPATH"), "rb")
-    text = 'Я тебя не понимаю.\n\nПожалуйста, воспользуйтесь кнопками в ' \
-           'нижнем меню. Если у вас они не отображаются, просто нажмите на ' \
-           'эту кнопку в поле ввода.'
-    await message.answer_photo(photo_obj, caption=text)
+    await message.answer_photo(photo_obj,
+                               caption=state_code_to_text_message["help"])
     photo_obj.close()
 
 
