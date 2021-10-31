@@ -99,7 +99,7 @@ async def get_address(message: types.Message, state: FSMContext):
 
     await message.answer(state_code_to_text_message["5"], reply_markup=menu)
 
-    await state.finish()  # FIXME
+    await state.reset_state(with_data=False)  # FIXME
 
 
 def register_handlers_registration(dp: Dispatcher):

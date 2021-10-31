@@ -49,9 +49,22 @@ async def fill_db_cmd(message: Message):
     await db_filler.create_single_tables_records()
 
 
+async def reset_tmp_storage(message: Message, state: FSMContext):
+    """Технологическая команда."""
+
+    await state.finish()
+
+    await message.reply('Состояния и привязанные к ним данные сброшены!')
+
+
 def register_handlers_common(dp: Dispatcher):
     dp.register_message_handler(start_cmd,
                                 commands=["start"],
                                 state="*")
 
-    dp.register_message_handler(fill_db_cmd, commands=["fill_db"])
+    dp.register_message_handler(fill_db_cmd,
+                                commands=["fill_db"],
+                                state="*")
+    dp.register_message_handler(reset_tmp_storage,
+                                commands=["reset"],
+                                state="*")
