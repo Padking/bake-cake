@@ -155,8 +155,7 @@ async def get_title_from_button(callback_query: types.CallbackQuery,
     async with state.proxy() as cake:
         cake['title'] = choice
 
-        await callback_query.message.edit_text(text="!",  # FIXME
-                                               reply_markup=None)
+        await callback_query.message.delete()
         if choice == "Без надписи":
 
             await CreateCake.comment.set()
@@ -196,8 +195,7 @@ async def get_comment_from_button(callback_query: types.CallbackQuery,
     async with state.proxy() as cake:
         cake['comment'] = choice
 
-        await callback_query.message.edit_text(text="!",  # FIXME
-                                               reply_markup=None)
+        await callback_query.message.delete()
         if choice == "Без комментария":
 
             await CreateCake.address.set()
